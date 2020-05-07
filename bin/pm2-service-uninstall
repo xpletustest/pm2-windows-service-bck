@@ -11,7 +11,7 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-console.log(`uninstalling with service name = ${args.name}`);
+console.log(`Uninstalling PM2 service with name = ${args.name}`);
 
 // pm2-windows-service stores the service name in a .sid file at a single global location
 // when using multiple instances of pm2 as a service, this will not work.

@@ -9,6 +9,9 @@ const args = require('yargs')
         .argv,
     pm2ws = require('../src/index');
 
+
+console.log(`Installing PM2 service with name = ${args.name}`);
+
 pm2ws.install(args.name, args.unattended).then(_ => {
     console.log('PM2 service installed and started.');
 }, err => {

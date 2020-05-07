@@ -1,3 +1,7 @@
+## 1.1.3
+
+- added: a little more logging
+
 ## 1.1.2
 
 - fixed: work-around in `bin\pm2-service-uninstall` for uninstall issues when using multiple instances.
