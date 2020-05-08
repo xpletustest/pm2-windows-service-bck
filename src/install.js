@@ -34,7 +34,13 @@ module.exports = co.wrap(function*(name, no_setup) {
 
     let service = new Service({
         name: name || 'PM2',
-        script: path.join(__dirname, 'service.js')
+        script: path.join(__dirname, 'service.js'),
+        stopparentfirst: true,
+        logging: {
+            mode: 'roll-by-time',
+            pattern: 'yyyyMMdd'
+        },
+        logpath: path.join(process.env.PM2_HOME, "logs")
     });
 
     // Let this throw if we can't remove previous daemon

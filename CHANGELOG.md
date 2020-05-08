@@ -1,3 +1,10 @@
+## 1.1.5
+- now configuring log rotation and logPath (pm2_home\logs)
+- added logging to pm2_home\logs from service.js
+- starting with stopparentfirst=true to allow for graceful shutdown
+- listening to shutdown message for graceful shutdown
+- kill pm2 on service shutdown
+
 ## 1.1.4
 - updated node-windows (and some other dependencies)
 

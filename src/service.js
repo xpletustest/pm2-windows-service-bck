@@ -7,41 +7,69 @@ const path = require('path'),
     start_script = process.env.PM2_SERVICE_SCRIPTS || process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT,
     json_regex = /\.json$/;
 
-if(!process.env.PM2_SERVICE_SCRIPTS && (process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT)) {
-    console.warn('[DEPRECATED] "PM2_SERVICE_CONFIG" and "PM2_SERVICE_SCRIPT" have been deprecated in favour of ' +
+
+const fs = require('fs');
+const PM2_HOME = process.env.PM2_HOME;
+const logFile = path.join(PM2_HOME, "logs", "pm2-windows-service-service_js.log");
+
+function dateString(d) {
+    const yyyy = d.getFullYear(),
+        mm = ('0' + (d.getMonth() + 1)).slice(-2),
+        dd = ('0' + d.getDate()).slice(-2),
+        hh = ('0' + d.getHours()).slice(-2),
+        nn = ('0' + d.getMinutes()).slice(-2),
+        ss = ('0' + d.getSeconds()).slice(-2);
+    return `${yyyy}-${mm}-${dd}T${hh}:${nn}:${ss}`;
+}
+
+function log(msg) {
+    const prefix = "service:";
+    const line =  `${dateString(new Date())}: ${prefix} ${msg}`;
+    console.log(line);
+    fs.appendFileSync(logFile, line+'\n');
+}
+
+log(`START pid=${process.pid}`);
+
+if (!process.env.PM2_SERVICE_SCRIPTS && (process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT)) {
+    log('WARNING: [DEPRECATED] "PM2_SERVICE_CONFIG" and "PM2_SERVICE_SCRIPT" have been deprecated in favour of ' +
         '"PM2_SERVICE_SCRIPTS".');
 }
 
 // Try to use the global version of pm2 (first from env, then using npm cli)
 let global_pm2_dir = process.env.PM2_SERVICE_PM2_DIR;
-if(!global_pm2_dir) {
-	global_pm2_dir = common.guess_pm2_global_dir();
+if (!global_pm2_dir) {
+    global_pm2_dir = common.guess_pm2_global_dir();
 }
 
+
 let pm2;
-if(global_pm2_dir) {
+if (global_pm2_dir) {
     try {
         pm2 = require(global_pm2_dir);
-    } catch(ex) {
-        console.error('Sorry, this script requires pm2');
-	  	process.exit(1);
+    } catch (ex) {
+        log('ERROR: Sorry, this script requires pm2');
+        process.exit(1);
     }
 }
 
-if(!pm2) {
+if (!pm2) {
     pm2 = require('pm2');
 }
 
 // NOTE: 'true' means the PM2 daemon exists in this process, so it gets kept alive with us as a Windows service
-pm2.connect(true, function(err) {
+log(`connecting to pm2`);
+pm2.connect(true, function (err) {
     handle_error(err);
 
-    if(!start_script) {
+    if (!start_script) {
+        log(`no start scripts, resurrecting pm2`);
         // No start script so just try and ressurect
-        pm2.resurrect(function(err2) {
+        pm2.resurrect(function (err2) {
             // Don't crash if we failed to resurrect, we might save on shutdown anyway
         });
     } else {
+        log(`executing start scripts: ${start_script}`);
         start_script.split(';').forEach(process_start_script);
     }
 });
@@ -51,14 +79,14 @@ function process_start_script(start_script) {
 
     // Make sure all apps in json config file have a cwd set, else the cwd will be the service user's home dir,
     // which will almost never lead to the correct script being found and launched
-    if(json_regex.test(start_script)) {
+    if (json_regex.test(start_script)) {
         // Use the directory of the config file as the default cwd
         let default_cwd = path.dirname(start_script);
 
         // Try to load the JSON in using require, the parsed JSON will act as our start_config object
         try {
             start_config = require(start_script);
-        } catch(ex) {
+        } catch (ex) {
             throw new Error('Unable to load PM2 JSON configuration file (' + start_script + ')');
         }
 
@@ -70,21 +98,22 @@ function process_start_script(start_script) {
 
         // Make sure each app definition has a cwd set, else set the default
         apps.forEach(app_definition => {
-            if(!app_definition.cwd) {
+            if (!app_definition.cwd) {
                 app_definition.cwd = default_cwd;
             }
         });
     }
 
     // Else, try to start the start script (js file or json config)
-    pm2.start(start_config, function(err2) {
+    pm2.start(start_config, function (err2) {
         handle_error(err2);
     });
 }
 
 function handle_error(err) {
-    if(err) {
-        if(err instanceof Error) {
+    if (err) {
+        log(`ERROR: ${err}`);
+        if (err instanceof Error) {
             throw err;
         }
 
@@ -92,3 +121,20 @@ function handle_error(err) {
         throw new Error(JSON.stringify(err));
     }
 }
+
+log("setting up event handlers");
+process.on("message", function (msg, sendHandle) {
+    log(`received message: ${msg}`);
+    if (msg == "shutdown") {
+        log(`shutdown message received, killing pm2 daemon`);
+        // this will exit this process
+        pm2.kill(function () {
+            // pm2.kill  exits this process, so we never get to here...
+            log(`exit with code=999`);
+            process.exit(999);
+        });
+    }
+});
+process.on("exit", function (code) {
+    log(`EXIT pid=${process.pid} with code=${code}`);
+});
