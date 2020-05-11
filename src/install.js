@@ -5,6 +5,7 @@ const path = require('path'),
     event = require('co-event'),
     promisify = require('util').promisify || require('promisify-node'),
     fsx = require('fs-extra'),
+    fs = require('fs'),
     exec = promisify(require('child_process').exec),
     Service = require('node-windows').Service,
     inquirer = require('inquirer'),
@@ -23,6 +24,18 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
     const PM2_HOME = process.env.PM2_HOME;
     if (!PM2_HOME) {
         throw new Error('PM2_HOME environment variable is not set. This is required for installation.');
+    } else {
+        if (!fs.existsSync(PM2_HOME)) {
+            throw new Error(`The folder specified by PM2_HOME (${PM2_HOME}) does not exist. \nPlease make sure this folder exists before installation.`);
+        }
+    }
+    const PM2_SERVICE_PM2_DIR = process.env.PM2_SERVICE_PM2_DIR;
+    if (!PM2_SERVICE_PM2_DIR) {
+        throw new Error('PM2_SERVICE_PM2_DIR environment variable is not set. This is required for installation.');
+    } else {
+        if (!fs.existsSync(PM2_SERVICE_PM2_DIR)) {
+            throw new Error(`The file specified by PM2_SERVICE_PM2_DIR (${PM2_SERVICE_PM2_DIR}) does not exist. \nPlease make sure pm2 is properly installed before installation.`);
+        }
     }
 
     let setup_response = yield no_setup ? Promise.resolve({
@@ -47,11 +60,16 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
             mode: 'roll-by-time',
             pattern: 'yyyyMMdd'
         },
-        logpath: logpath ? logpath : path.join(process.env.PM2_HOME, "logs"),
-        env: {
-            name: "PM2_HOME",
-            value: PM2_HOME // service needs PM2_HOME environment var
-        }
+        logpath: logpath ? logpath : path.join(PM2_HOME, "logs"),
+        env: [
+            {
+                name: "PM2_HOME",
+                value: PM2_HOME // service needs PM2_HOME environment var
+            },
+            {
+                name: "PM2_SERVICE_PM2_DIR",
+                value: PM2_SERVICE_PM2_DIR // service needs PM2_SERVICE_PM2_DIR environment var
+            }]
     });
 
     // Let this throw if we can't remove previous daemon

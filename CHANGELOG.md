@@ -1,3 +1,10 @@
+## 1.1.8
+- removed workaround for single .sid file in APPDATA folder
+- install now checks if PM2_HOME folder exists
+- install now checks for PM2_SERVICE_PM2_DIR env var
+- install now checks if PM2_SERVICE_PM2_DIR exists
+- install now sets PM2_SERVICE_PM2_DIR for service
+
 ## 1.1.7
 - now using our own fork of node-windows
 - install/uninstall now use .sid file in PM2_HOME folder
