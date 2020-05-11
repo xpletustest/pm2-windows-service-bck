@@ -41,7 +41,7 @@ co(function*() {
     });
 
     console.log('Verifying service installed...');
-    yield exec('sc query "' + service.id + '.exe"');
+    yield exec('sc query "' + service.id + '"');
 
     // TODO: Verify it's actually started - '| findstr RUNNING' refused to work...
 
@@ -51,7 +51,7 @@ co(function*() {
     console.log('Verifying service uninstalled...');
     let threw = false;
     try {
-        let query_result = yield exec('sc query "' + service.id + '.exe"');
+        let query_result = yield exec('sc query "' + service.id + '"');
         console.log(query_result);
     } catch(ex) {
         threw = true;

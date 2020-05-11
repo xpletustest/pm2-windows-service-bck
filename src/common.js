@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs'),
     path = require('path'),
-    exec_sync = require('child_process').execSync,
     shell = require('shelljs'),
     promisify = require('util').promisify || require('promisify-node'),
     del = require('del'),
@@ -15,12 +14,12 @@ exports.check_platform = function() {
 
 exports.admin_warning = function() {
     return promisify(is_admin)().
-        then(admin => {
-            if(!admin) {
-                console.warn('*** HINT: Run this as administrator to avoid the UAC spam ***');
+        then(isAdmin => {
+            if(!isAdmin) {
+                console.warn('*** WARNING: Run this as administrator ***');
             }
         }, _ => {
-            console.warn('*** HINT: Run this as administrator to avoid the UAC spam ***');
+            console.warn('*** WARNING: Run this as administrator ***');
             // Don't re-throw, we just assume they aren't admin if it errored
         });
 };

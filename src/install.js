@@ -10,13 +10,17 @@ const path = require('path'),
     Service = require('node-windows').Service,
     inquirer = require('inquirer'),
     common = require('./common'),
+    { parseOnFailureString } = require("../src/validation"),
     setup = require('./setup');
 
-const PM2_HOME = process.env.PM2_HOME;
-const sid_file = path.resolve(PM2_HOME, '.sid');
+module.exports = co.wrap(function*(config) {
 
-module.exports = co.wrap(function*(name, description, logpath, no_setup) {
 
+    const {name, id, description, logpath, unattended, onfailure, resetfailure} = config;
+    console.log(`Install called with config`, config);
+
+    //when id is not specified, use name instead
+    const service_id = id ? id : name;
     common.check_platform();
 
     yield common.admin_warning();
@@ -38,7 +42,7 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
         }
     }
 
-    let setup_response = yield no_setup ? Promise.resolve({
+    let setup_response = yield unattended ? Promise.resolve({
         perform_setup: false
     }) : inquirer.prompt([{
         type: 'confirm',
@@ -47,13 +51,16 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
         default: true
     }]);
 
-    if(setup_response.perform_setup) {
+    if (setup_response.perform_setup) {
         yield setup();
     }
 
+    console.log(`Installing PM2 service with name="${name}"` + (service_id ? ` and id="${service_id}"` : ``));
+
     let service = new Service({
+        id: service_id,
         name: name || 'PM2',
-        description: description,
+        description,
         script: path.join(__dirname, 'service.js'),
         stopparentfirst: true,
         logging: {
@@ -61,15 +68,15 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
             pattern: 'yyyyMMdd'
         },
         logpath: logpath ? logpath : path.join(PM2_HOME, "logs"),
-        env: [
-            {
+        env: [{
                 name: "PM2_HOME",
                 value: PM2_HOME // service needs PM2_HOME environment var
-            },
-            {
+            },{
                 name: "PM2_SERVICE_PM2_DIR",
                 value: PM2_SERVICE_PM2_DIR // service needs PM2_SERVICE_PM2_DIR environment var
-            }]
+            }],
+        onFailure: onfailure ? parseOnFailureString(onfailure) : null,
+        resetFailure: resetfailure ? resetfailure : null
     });
 
     // Let this throw if we can't remove previous daemon
@@ -79,20 +86,20 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
         throw new Error('Previous daemon still in use, please stop or uninstall existing service before reinstalling.');
     }
 
-    // NOTE: We don't do (name = name || 'PM2') above so we don't end up
-    // writing out a sid_file for default name
-    yield* save_sid_file(name);
+    // NOTE: We don't do (service_id = service_id || 'PM2') above so we don't end up writing out a sid_file for default service_id
+    const sid_file = path.resolve(PM2_HOME, '.sid');
+    yield* save_sid_file(service_id, sid_file);
 
     yield* kill_existing_pm2_daemon();
 
     yield* install_and_start_service(service);
 });
 
-function* save_sid_file(name) {
-    if(name) {
-        // Save name to %APPDATA%/pm2-windows-service/.sid, if supplied
-        console.log(`Service name: ${name} stored in: ${sid_file}.`);
-        yield fsx.outputFile(sid_file, name);
+function* save_sid_file(service_id, sid_file) {
+    if (service_id) {
+        // Save id to %PM2_HOME%/.sid, if supplied
+        console.log(`Service id: ${service_id} stored in: ${sid_file}.`);
+        yield fsx.outputFile(sid_file, service_id);
     }
 }
 
@@ -114,9 +121,11 @@ function* install_and_start_service(service) {
         switch (e.type) {
             case 'alreadyinstalled':
             case 'install':
+                console.log("Starting service...");
                 service.start();
                 break;
             case 'start':
+                console.log("Service started.");
                 return;
             case 'error':
                 console.error('node-windows reports error ', e.args);

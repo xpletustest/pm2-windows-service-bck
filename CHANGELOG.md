@@ -1,3 +1,17 @@
+## 1.1.9
+- updated: node-windows
+- added: setEnv.bat (for testing)
+- improved: command line syntax & feedback
+- added: support for service recovery config (onFailure & resetFailure)
+- changed: install now takes a config object (instead of many params)
+- added: validation.js for parsing and validating params
+- fixed: name was used for uninstall (now using id)
+- fixed: PM2_HOME was referenced before checking
+- added: some more logging
+- changed: proper var names for service_id (not service_name)
+- fixed: service name was stored in .sid file (now service id)
+- fixed: ".exe" should not be appended to service id
+
 ## 1.1.8
 - removed workaround for single .sid file in APPDATA folder
 - install now checks if PM2_HOME folder exists

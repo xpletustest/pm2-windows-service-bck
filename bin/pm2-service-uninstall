@@ -5,15 +5,14 @@
 const path = require('path');
 const fs = require('fs');
 const args = require('yargs')
-        .usage('Usage: $0 [-n <service name>]')
-        .alias('n', 'name')
-        .describe('n', 'name of the service to uninstall')
+        .usage('Usage: $0 [-i <service name>]')
+        .alias('i', 'id')
+        .describe('i', 'id of the service to uninstall')
         .argv;
 
 const pm2ws = require('../src/index');
 
-// pass supplied name to pm2ws.uninstall
-pm2ws.uninstall(args.name).then(_ => {
+pm2ws.uninstall(args.id).then(_ => {
     console.log('PM2 service uninstalled.');
 }, err => {
     console.error('Deinstallation failed:', err);

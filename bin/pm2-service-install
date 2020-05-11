@@ -2,24 +2,61 @@
 
 'use strict';
 
+const {
+    checkValidOnFailure,
+    checkValidResetFailure} = require("../src/validation");
+
 const args = require('yargs')
-        .usage('Usage: $0 [-n <service name>] [-d <service description] [-l <log path> ] [--unattended]')
+        .usage('Usage: $0 -n <service_name> [-i <service_id>]\n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [--unattended]')
+        .alias('i', 'id')
+        .string('i')
+        .describe('i', 'id of the service to install\n    (if not specified, name will be used)')
         .alias('n', 'name')
-        .describe('n', 'name of the service to install')
+        .describe('n', '(display-) name of the service to install')
+        .string('n')
         .demandOption('n')
         .alias('d', 'description')
         .describe('d', 'description of the service')
+        .string('d')
         .alias('l', 'logpath')
         .describe('l', 'full path of folder to store log files')
+        .string('l')
         .alias('u', 'unattended')
         .describe('u', 'install unattended')
-        .argv,
-    pm2ws = require('../src/index');
+        .boolean('u')
+        .alias('r', 'resetfailure')
+        .describe('r', 'controls the timing in which\n    Windows SCM resets the failure count.')
+        .string('r')
+        .alias('f', 'onfailure')
+        .describe('f', 'controls the behaviour when\n    the process launched by winsw fails.')
+        .string('f')
+        .epilog('Syntax:\n'+
+        '  <onfailures> syntax: "<action>;<delay>,<action>;<delay>"\n'+
+        '    (a list of <action>;<delay> pairs, each pair separated by comma\'s)\n'+
+        '    (each <action> must be followed by a <delay> separated by a semicolon)\n'+
+        '  <duration> syntax: "30 secs"\n'+
+        '    (number followed by <unit_suffix> separated by single space)\n'+
+        '  <delay> uses the same syntax as <duration>\n'+
+        '  <action> can be one of the following values:\n'+
+        '    "restart", "reboot" or "none"\n'+
+        '  <unit_suffix> can be one of the following values:\n'+
+        '    "sec", "secs", "min", "mins", "hour" ,"hours", "day" or "days"')
+        .check((args, _) => {
+            if (args.r) {
+                checkValidResetFailure(args.r);
+            }
+            if (args.f) {
+                checkValidOnFailure(args.f);
+            }
+            return true;
+        })
+        .argv;
 
+const pm2ws = require('../src/index');
 
-console.log(`Installing PM2 service with name = ${args.name}`);
-
-pm2ws.install(args.name, args.description, args.logpath, args.unattended).then(_ => {
+const {name, id, description, logpath, unattended, onfailure, resetfailure} = args;
+const config = {name, id, description, logpath, unattended, onfailure, resetfailure};
+pm2ws.install(config).then(_ => {
     console.log('PM2 service installed and started.');
 }, err => {
     console.error('Installation failed:', err);
