@@ -47,8 +47,8 @@ let pm2;
 if (global_pm2_dir) {
     try {
         pm2 = require(global_pm2_dir);
-    } catch (ex) {
-        log('ERROR: Sorry, this script requires pm2');
+    } catch (err) {
+        log(`require of ${global_pm2_dir} with error: ${err}`);
         process.exit(1);
     }
 }
@@ -87,7 +87,7 @@ function process_start_script(start_script) {
         try {
             start_config = require(start_script);
         } catch (ex) {
-            throw new Error('Unable to load PM2 JSON configuration file (' + start_script + ')');
+            throw new Error(`Unable to load PM2 JSON configuration file (${start_script}), due to the following error: ${ex}`);
         }
 
         // PM2 app declarations can be an array or an object with an 'apps' node
@@ -128,7 +128,8 @@ process.on("message", function (msg, sendHandle) {
     if (msg == "shutdown") {
         log(`shutdown message received, killing pm2 daemon`);
         // this will exit this process
-        pm2.kill(function () {
+        pm2.kill(function (err, apps) {
+            log(`pm2.kill failed with error: ${err} and apps: ${apps}`);
             // pm2.kill  exits this process, so we never get to here...
             log(`exit with code=999`);
             process.exit(999);

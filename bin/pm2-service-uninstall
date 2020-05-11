@@ -7,6 +7,8 @@ const fs = require('fs');
 const args = require('yargs')
         .usage('Usage: $0 [-n <service name>]')
         .alias('n', 'name')
+        .describe('n', 'name of the service to uninstall')
+        .demandOption('n')
         .argv;
 
 const pm2ws = require('../src/index');

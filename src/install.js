@@ -14,7 +14,8 @@ const path = require('path'),
     save_dir = path.resolve(process.env.APPDATA, 'pm2-windows-service'),
     sid_file = path.resolve(save_dir, '.sid');
 
-module.exports = co.wrap(function*(name, no_setup) {
+module.exports = co.wrap(function*(name, description, logpath, no_setup) {
+
     common.check_platform();
 
     yield common.admin_warning();
@@ -34,13 +35,14 @@ module.exports = co.wrap(function*(name, no_setup) {
 
     let service = new Service({
         name: name || 'PM2',
+        description: description,
         script: path.join(__dirname, 'service.js'),
         stopparentfirst: true,
         logging: {
             mode: 'roll-by-time',
             pattern: 'yyyyMMdd'
         },
-        logpath: path.join(process.env.PM2_HOME, "logs")
+        logpath: logpath ? logpath : path.join(process.env.PM2_HOME, "logs")
     });
 
     // Let this throw if we can't remove previous daemon
@@ -86,8 +88,13 @@ function* install_and_start_service(service) {
             case 'install':
                 service.start();
                 break;
-
             case 'start':
+                return;
+            case 'error':
+                console.error('node-windows reports error ', e.args);
+                return;
+            case 'invalidinstallation':
+                console.error('node-windows reports invalid installation ', e.args);
                 return;
         }
     }

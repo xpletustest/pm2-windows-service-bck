@@ -1,3 +1,11 @@
+## 1.1 6
+- restored & updated orignal README
+- improved command-line args handling
+- made service name arg required
+- added description & logpath args
+- updated dependencies
+- added some more logging and error handling
+
 ## 1.1.5
 - now configuring log rotation and logPath (pm2_home\logs)
 - added logging to pm2_home\logs from service.js
@@ -16,3 +24,4 @@
 
 ## 1.1.1
  - fork from https://github.com/innomizetech/pm2-windows-service
+ - (which in trun was forked form https://github.com/jon-hall/pm2-windows-service)

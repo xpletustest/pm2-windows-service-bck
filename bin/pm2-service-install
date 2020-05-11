@@ -3,16 +3,23 @@
 'use strict';
 
 const args = require('yargs')
-        .usage('Usage: $0 [-n <service name>] [--unattended]')
+        .usage('Usage: $0 [-n <service name>] [-d <service description] [-l <log path> ] [--unattended]')
         .alias('n', 'name')
+        .describe('n', 'name of the service to install')
+        .demandOption('n')
+        .alias('d', 'description')
+        .describe('d', 'description of the service')
+        .alias('l', 'logpath')
+        .describe('l', 'full path of folder to store log files')
         .alias('u', 'unattended')
+        .describe('u', 'install unattended')
         .argv,
     pm2ws = require('../src/index');
 
 
 console.log(`Installing PM2 service with name = ${args.name}`);
 
-pm2ws.install(args.name, args.unattended).then(_ => {
+pm2ws.install(args.name, args.description, args.logpath, args.unattended).then(_ => {
     console.log('PM2 service installed and started.');
 }, err => {
     console.error('ERROR', err);
