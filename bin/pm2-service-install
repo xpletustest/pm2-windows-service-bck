@@ -22,6 +22,6 @@ console.log(`Installing PM2 service with name = ${args.name}`);
 pm2ws.install(args.name, args.description, args.logpath, args.unattended).then(_ => {
     console.log('PM2 service installed and started.');
 }, err => {
-    console.error('ERROR', err);
+    console.error('Installation failed:', err);
     process.exit((err && err.code) || 1);
 });

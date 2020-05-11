@@ -1,4 +1,11 @@
-## 1.1 6
+## 1.1.7
+- now using our own fork of node-windows
+- install/uninstall now use .sid file in PM2_HOME folder
+- install sets PM2_HOME env var for service
+- install checks if PM2_HOME env var is set
+- service name arg is now optional for uninstall (uses .sid file when not specified)
+
+## 1.1.6
 - restored & updated orignal README
 - improved command-line args handling
 - made service name arg required

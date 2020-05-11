@@ -8,12 +8,9 @@ const args = require('yargs')
         .usage('Usage: $0 [-n <service name>]')
         .alias('n', 'name')
         .describe('n', 'name of the service to uninstall')
-        .demandOption('n')
         .argv;
 
 const pm2ws = require('../src/index');
-
-console.log(`Uninstalling PM2 service with name = ${args.name}`);
 
 // pm2-windows-service stores the service name in a .sid file at a single global location
 // when using multiple instances of pm2 as a service, this will not work.
@@ -29,6 +26,6 @@ if (fs.existsSync(sid_file)) {
 pm2ws.uninstall(args.name).then(_ => {
     console.log('PM2 service uninstalled.');
 }, err => {
-    console.error('ERROR', err);
+    console.error('Deinstallation failed:', err);
     process.exit((err && err.code) || 1);
 });

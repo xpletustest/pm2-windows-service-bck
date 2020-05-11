@@ -10,17 +10,23 @@ const path = require('path'),
     elevate = promisify(node_win.elevate),
     Service = node_win.Service,
     del = require('del'),
-    common = require('./common'),
-    save_dir = path.resolve(process.env.APPDATA, 'pm2-windows-service'),
-    sid_file = path.resolve(save_dir, '.sid'),
-    MAX_KILL_CHECKS = 12,
-    KILL_CHECK_DELAY = 5000;
+    common = require('./common');
 
+const PM2_HOME = process.env.PM2_HOME;
+const sid_file = path.resolve(PM2_HOME, '.sid');
+
+const MAX_KILL_CHECKS = 12;
+const KILL_CHECK_DELAY = 5000;
 
 module.exports = co.wrap(function*(name) {
     common.check_platform();
 
     yield common.admin_warning();
+
+    const PM2_HOME = process.env.PM2_HOME;
+    if (!PM2_HOME) {
+        throw new Error('PM2_HOME environment variable is not set. This is required for deinstallation.');
+    }
 
     let name_from_sid_file;
     try {
@@ -32,6 +38,8 @@ module.exports = co.wrap(function*(name) {
 
     // If we don't have a name by now, then default to 'PM2'
     name = name || 'PM2';
+
+    console.log(`Uninstalling PM2 service with name = ${name}`);
 
     let service = new Service({
             name: name,

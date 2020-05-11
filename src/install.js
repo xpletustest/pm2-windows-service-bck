@@ -9,15 +9,21 @@ const path = require('path'),
     Service = require('node-windows').Service,
     inquirer = require('inquirer'),
     common = require('./common'),
-    setup = require('./setup'),
-    save_dir = path.resolve(process.env.APPDATA, 'pm2-windows-service'),
-    sid_file = path.resolve(save_dir, '.sid');
+    setup = require('./setup');
+
+const PM2_HOME = process.env.PM2_HOME;
+const sid_file = path.resolve(PM2_HOME, '.sid');
 
 module.exports = co.wrap(function*(name, description, logpath, no_setup) {
 
     common.check_platform();
 
     yield common.admin_warning();
+
+    const PM2_HOME = process.env.PM2_HOME;
+    if (!PM2_HOME) {
+        throw new Error('PM2_HOME environment variable is not set. This is required for installation.');
+    }
 
     let setup_response = yield no_setup ? Promise.resolve({
         perform_setup: false
@@ -41,7 +47,11 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
             mode: 'roll-by-time',
             pattern: 'yyyyMMdd'
         },
-        logpath: logpath ? logpath : path.join(process.env.PM2_HOME, "logs")
+        logpath: logpath ? logpath : path.join(process.env.PM2_HOME, "logs"),
+        env: {
+            name: "PM2_HOME",
+            value: PM2_HOME // service needs PM2_HOME environment var
+        }
     });
 
     // Let this throw if we can't remove previous daemon
@@ -63,6 +73,7 @@ module.exports = co.wrap(function*(name, description, logpath, no_setup) {
 function* save_sid_file(name) {
     if(name) {
         // Save name to %APPDATA%/pm2-windows-service/.sid, if supplied
+        console.log(`Service name: ${name} stored in: ${sid_file}.`);
         yield fsx.outputFile(sid_file, name);
     }
 }
