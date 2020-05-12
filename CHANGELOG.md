@@ -1,3 +1,8 @@
+## 1.1.12
+- updated: node-windows
+- added: install params for account & password
+- added: check if password is combined with account
+
 ## 1.1.11
 - updated: node-windows
 - added: support for workingdir param

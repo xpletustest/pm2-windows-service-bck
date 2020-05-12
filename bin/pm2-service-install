@@ -33,6 +33,12 @@ const args = require('yargs')
         .alias('w', 'workingdir')
         .describe('w', 'service working directory')
         .string('w')
+        .alias('a', 'account')
+        .describe('a', 'account to use for service')
+        .string('a')
+        .alias('p', 'password')
+        .describe('p', 'password for account to use for service (requires -a)')
+        .string('p')
         .epilog('Syntax:\n'+
         '  <onfailures> syntax: "<action>;<delay>,<action>;<delay>"\n'+
         '    (a list of <action>;<delay> pairs, each pair separated by comma\'s)\n'+
@@ -51,14 +57,19 @@ const args = require('yargs')
             if (args.f) {
                 checkValidOnFailure(args.f);
             }
+            if (args.p) {
+                if (!args.a) {
+                    throw new Error("Missing parameter: password needs to be combined with: account");
+                }
+            }
             return true;
         })
         .argv;
 
 const pm2ws = require('../src/index');
 
-const config = (({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir}) =>
-    ({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir}))(args);
+const config = (({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}) =>
+    ({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}))(args);
 
 pm2ws.install(config).then(_ => {
     console.log('PM2 service installed and started.');

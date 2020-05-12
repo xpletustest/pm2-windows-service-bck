@@ -16,7 +16,7 @@ const path = require('path'),
 module.exports = co.wrap(function*(config) {
 
 
-    const {name, id, description, logpath, unattended, onfailure, resetfailure, workingdir} = config;
+    const {name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password} = config;
     console.log(`Install called with config`, config);
 
     //when id is not specified, use name instead
@@ -77,7 +77,11 @@ module.exports = co.wrap(function*(config) {
             }],
         onFailure: onfailure ? parseOnFailureString(onfailure) : null,
         resetFailure: resetfailure ? resetfailure : null,
-        workingDirectory: workingdir
+        workingDirectory: workingdir,
+        logOnAs: account ? {
+            account,
+            password: password ? password : null
+        } : null
     });
 
     // Let this throw if we can't remove previous daemon
