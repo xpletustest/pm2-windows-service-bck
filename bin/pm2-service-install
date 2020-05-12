@@ -30,6 +30,9 @@ const args = require('yargs')
         .alias('f', 'onfailure')
         .describe('f', 'controls the behaviour when\n    the process launched by winsw fails.')
         .string('f')
+        .alias('w', 'workingdir')
+        .describe('w', 'service working directory')
+        .string('w')
         .epilog('Syntax:\n'+
         '  <onfailures> syntax: "<action>;<delay>,<action>;<delay>"\n'+
         '    (a list of <action>;<delay> pairs, each pair separated by comma\'s)\n'+
@@ -54,8 +57,8 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-const config = (({name, id, description, logpath, unattended, onfailure, resetfailure}) =>
-    ({name, id, description, logpath, unattended, onfailure, resetfailure}))(args);
+const config = (({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir}) =>
+    ({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir}))(args);
 
 pm2ws.install(config).then(_ => {
     console.log('PM2 service installed and started.');

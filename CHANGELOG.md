@@ -1,3 +1,7 @@
+## 1.1.11
+- updated: node-windows
+- added: support for workingdir param
+
 ## 1.1.10
 - updated: node-windows
 - removed: some unused require imports

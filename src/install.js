@@ -16,7 +16,7 @@ const path = require('path'),
 module.exports = co.wrap(function*(config) {
 
 
-    const {name, id, description, logpath, unattended, onfailure, resetfailure} = config;
+    const {name, id, description, logpath, unattended, onfailure, resetfailure, workingdir} = config;
     console.log(`Install called with config`, config);
 
     //when id is not specified, use name instead
@@ -30,7 +30,7 @@ module.exports = co.wrap(function*(config) {
         throw new Error('PM2_HOME environment variable is not set. This is required for installation.');
     } else {
         if (!fs.existsSync(PM2_HOME)) {
-            throw new Error(`The folder specified by PM2_HOME (${PM2_HOME}) does not exist. \nPlease make sure this folder exists before installation.`);
+            throw new Error(`The folder specified by PM2_HOME (${PM2_HOME}) does not exist. \nPlease make sure this folder exists before service installation.`);
         }
     }
     const PM2_SERVICE_PM2_DIR = process.env.PM2_SERVICE_PM2_DIR;
@@ -38,7 +38,7 @@ module.exports = co.wrap(function*(config) {
         throw new Error('PM2_SERVICE_PM2_DIR environment variable is not set. This is required for installation.');
     } else {
         if (!fs.existsSync(PM2_SERVICE_PM2_DIR)) {
-            throw new Error(`The file specified by PM2_SERVICE_PM2_DIR (${PM2_SERVICE_PM2_DIR}) does not exist. \nPlease make sure pm2 is properly installed before installation.`);
+            throw new Error(`The file specified by PM2_SERVICE_PM2_DIR (${PM2_SERVICE_PM2_DIR}) does not exist. \nPlease make sure pm2 is properly installed before service installation.`);
         }
     }
 
@@ -76,7 +76,8 @@ module.exports = co.wrap(function*(config) {
                 value: PM2_SERVICE_PM2_DIR // service needs PM2_SERVICE_PM2_DIR environment var
             }],
         onFailure: onfailure ? parseOnFailureString(onfailure) : null,
-        resetFailure: resetfailure ? resetfailure : null
+        resetFailure: resetfailure ? resetfailure : null,
+        workingDirectory: workingdir
     });
 
     // Let this throw if we can't remove previous daemon
