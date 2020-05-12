@@ -12,8 +12,8 @@ const path = require('path'),
     del = require('del'),
     common = require('./common');
 
-const MAX_KILL_CHECKS = 12;
-const KILL_CHECK_DELAY = 5000;
+const MAX_KILL_CHECKS = 30;
+const KILL_CHECK_DELAY = 2000;
 
 module.exports = co.wrap(function*(id) {
     common.check_platform();
@@ -48,21 +48,23 @@ module.exports = co.wrap(function*(id) {
 
     yield* verify_service_exists(service_id);
 
-    yield* stop_and_uninstall_service(service, service_id);
+    yield* stop_and_uninstall_service(service, service_id, PM2_HOME);
 
     yield* remove_sid_file(id_from_sid_file, sid_file);
 
     yield* try_confirm_kill(service_id);
 
     // Try to clean up the daemon files
-    yield common.remove_previous_daemon(service);
+    // (node-windows already does this, but just to be sure)
+    yield common.remove_previous_daemon(service, PM2_HOME);
 });
 
 function* verify_service_exists(service_id) {
+    // NOTE: exec throws when 'sc query' failed, implying the service has been removed
     yield exec('sc query ' + service_id);
 }
 
-function* stop_and_uninstall_service(service, service_id) {
+function* stop_and_uninstall_service(service, service_id, folder) {
     // Make sure we kick off the stop event on next tick BEFORE we yield
     console.log("Stopping service...");
     setImmediate(_ => service.stop());
@@ -74,7 +76,8 @@ function* stop_and_uninstall_service(service, service_id) {
             case 'alreadystopped':
             case 'stop':
                 console.log("Service stopped.");
-                yield elevate('sc delete ' + service_id);
+                console.log(`Uninstalling service from folder: ${folder}`);
+                service.uninstall(folder);
                 return;
         }
     }
@@ -90,6 +93,7 @@ function* try_confirm_kill(service_id) {
     }
 
     if(!removed) {
+        console.log("Service not removed (yet), trying to stop it and check for removal...");
         // Service hasn't been removed, try stopping it to see if that gets rid of it
         yield elevate('sc stop ' + service_id);
 
@@ -111,6 +115,7 @@ function* poll_for_service_removal(service_id) {
     // TODO: Surely there's a better approach...?
     let tries = 0;
     while(!removed && (tries++ < MAX_KILL_CHECKS)) {
+        console.log(`Checking for service removal (attempt ${tries})`);
         // Re-check to see if it's done now...
         try {
             yield* verify_service_exists(service_id);

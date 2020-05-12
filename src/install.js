@@ -81,7 +81,7 @@ module.exports = co.wrap(function*(config) {
 
     // Let this throw if we can't remove previous daemon
     try {
-        yield common.remove_previous_daemon(service);
+        yield common.remove_previous_daemon(service, PM2_HOME);
     } catch(ex) {
         throw new Error('Previous daemon still in use, please stop or uninstall existing service before reinstalling.');
     }
@@ -92,7 +92,7 @@ module.exports = co.wrap(function*(config) {
 
     yield* kill_existing_pm2_daemon();
 
-    yield* install_and_start_service(service);
+    yield* install_and_start_service(service, PM2_HOME);
 });
 
 function* save_sid_file(service_id, sid_file) {
@@ -111,9 +111,9 @@ function* kill_existing_pm2_daemon() {
     }
 }
 
-function* install_and_start_service(service) {
+function* install_and_start_service(service, folder) {
     // Make sure we kick off the install events on next tick BEFORE we yield
-    setImmediate(_ => service.install());
+    setImmediate(_ => service.install(folder));
 
     // Now yield on install/alreadyinstalled/start events
     let e;

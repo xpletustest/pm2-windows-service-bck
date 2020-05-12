@@ -54,8 +54,9 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-const {name, id, description, logpath, unattended, onfailure, resetfailure} = args;
-const config = {name, id, description, logpath, unattended, onfailure, resetfailure};
+const config = (({name, id, description, logpath, unattended, onfailure, resetfailure}) =>
+    ({name, id, description, logpath, unattended, onfailure, resetfailure}))(args);
+
 pm2ws.install(config).then(_ => {
     console.log('PM2 service installed and started.');
 }, err => {

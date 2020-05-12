@@ -2,8 +2,6 @@
 
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
 const args = require('yargs')
         .usage('Usage: $0 [-i <service name>]')
         .alias('i', 'id')

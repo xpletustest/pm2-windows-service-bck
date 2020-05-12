@@ -24,8 +24,8 @@ exports.admin_warning = function() {
         });
 };
 
-exports.remove_previous_daemon = function(service) {
-    return del(path.resolve(__dirname, 'daemon', service.id + '.*'), { force: true });
+exports.remove_previous_daemon = function(service, folder) {
+    return del(path.resolve(folder, 'daemon', service.id + '.*'), { force: true });
 }
 
 exports.guess_pm2_global_dir = function() {
