@@ -57,7 +57,7 @@ module.exports = co.wrap(function*(config) {
 
     console.log(`Installing PM2 service with name="${name}"` + (service_id ? ` and id="${service_id}"` : ``));
 
-    logpath = logpath ?? path.join(PM2_HOME, "logs");
+    logpath = logpath ? logpath : path.join(PM2_HOME, "logs");
 
     let service = new Service({
         id: service_id,

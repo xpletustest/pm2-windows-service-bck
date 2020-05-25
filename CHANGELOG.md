@@ -1,3 +1,6 @@
+## 1.1.14
+- fixed: cannot use null-coalescing operator (yet)
+
 ## 1.1.13
 - added: use provided logpath for logging from service.js (via env.SERVICEJS_LOGPATH)
 
