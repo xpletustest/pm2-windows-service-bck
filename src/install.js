@@ -57,7 +57,7 @@ module.exports = co.wrap(function*(config) {
 
     console.log(`Installing PM2 service with name="${name}"` + (service_id ? ` and id="${service_id}"` : ``));
 
-    logpath = logpath ? logpath : path.join(PM2_HOME, "logs");
+    const logFolder = logpath ? logpath : path.join(PM2_HOME, "logs");
 
     let service = new Service({
         id: service_id,
@@ -69,7 +69,7 @@ module.exports = co.wrap(function*(config) {
             mode: 'roll-by-time',
             pattern: 'yyyyMMdd'
         },
-        logpath: logpath,
+        logpath: logFolder,
         env: [{
                 name: "PM2_HOME",
                 value: PM2_HOME // service needs PM2_HOME environment var
@@ -79,7 +79,7 @@ module.exports = co.wrap(function*(config) {
             },
             {
                 name: "SERVICEJS_LOGPATH",
-                value: logpath
+                value: logFolder
             }],
         onFailure: onfailure ? parseOnFailureString(onfailure) : null,
         resetFailure: resetfailure ? resetfailure : null,

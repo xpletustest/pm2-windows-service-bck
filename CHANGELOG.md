@@ -1,3 +1,6 @@
+## 1.1.15
+- fixed: tried to assign to const logpath
+
 ## 1.1.14
 - fixed: cannot use null-coalescing operator (yet)
 
