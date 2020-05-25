@@ -10,8 +10,9 @@ const path = require('path'),
 
 const fs = require('fs');
 const PM2_HOME = process.env.PM2_HOME;
-const logFolder = process.env.SERVICEJS_LOGPATH ? process.env.SERVICEJS_LOGPATH : path.join(PM2_HOME, "logs", "pm2-windows-service-service_js.log");
-const logFile = path.join(logFolder, "pm2-windows-service-service_js.log");
+const logFileName = process.env.SERVICE_SUFFIX ? "pm2-windows-service-service_js" + process.env.SERVICE_SUFFIX + ".log" : "pm2-windows-service-service_js.log";
+const logFolder = process.env.SERVICEJS_LOGPATH ? process.env.SERVICEJS_LOGPATH : path.join(PM2_HOME, "logs");
+const logFile = path.join(logFolder, logFileName);
 
 function dateString(d) {
     const yyyy = d.getFullYear(),

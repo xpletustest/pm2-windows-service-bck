@@ -1,3 +1,7 @@
+## 1.1.16
+- fixed: incorrect logFolder when SERVICEJS_LOGPATH is not specified
+- added: append service name suffix to logfile
+
 ## 1.1.15
 - fixed: tried to assign to const logpath
 

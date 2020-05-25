@@ -78,9 +78,14 @@ module.exports = co.wrap(function*(config) {
                 value: PM2_SERVICE_PM2_DIR // service needs PM2_SERVICE_PM2_DIR environment var
             },
             {
-                name: "SERVICEJS_LOGPATH",
+                name: "SERVICEJS_LOGPATH", // folder where service.js stores logging
                 value: logFolder
-            }],
+            },
+            {
+                name: "SERVICE_SUFFIX", // suffix for log filename used by service.js
+                value: process.env.SERVICE_SUFFIX
+            }
+        ],
         onFailure: onfailure ? parseOnFailureString(onfailure) : null,
         resetFailure: resetfailure ? resetfailure : null,
         workingDirectory: workingdir,
