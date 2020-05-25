@@ -1,3 +1,6 @@
+## 1.1.13
+- added: use provided logpath for logging from service.js (via env.SERVICEJS_LOGPATH)
+
 ## 1.1.12
 - updated: node-windows
 - added: install params for account & password
