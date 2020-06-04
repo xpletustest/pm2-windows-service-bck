@@ -15,7 +15,7 @@ const path = require('path'),
 const MAX_KILL_CHECKS = 30;
 const KILL_CHECK_DELAY = 2000;
 
-module.exports = co.wrap(function*(id) {
+module.exports = co.wrap(function*(id, exeName) {
     common.check_platform();
 
     yield common.admin_warning();
@@ -42,6 +42,7 @@ module.exports = co.wrap(function*(id) {
     let service = new Service({
             id,
             name: id, //node-windows wants this (but it is not strictly needed when uninstalling)
+            exeName,
             script: path.join(__dirname, 'service.js')
         });
     const service_id = service.id;

@@ -7,14 +7,17 @@ const {
     checkValidResetFailure} = require("../src/validation");
 
 const args = require('yargs')
-        .usage('Usage: $0 -n <service_name> [-i <service_id>]\n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [--unattended]')
+        .usage('Usage: $0 -n <service_name> [-i <service_id>] [-e <exe_name>] \n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [-w <workingdir>] [-a <account>]\n    [-p <password>] [--unattended]')
         .alias('i', 'id')
         .string('i')
-        .describe('i', 'id of the service to install\n    (if not specified, name will be used)')
+        .describe('i', 'id of the service to install\n    (if not specified, <service_name> will be used)')
         .alias('n', 'name')
         .describe('n', '(display-) name of the service to install')
         .string('n')
         .demandOption('n')
+        .alias('e', 'exeName')
+        .string('e')
+        .describe('e', 'name of executable that will be created (without .exe)\n    (if not specified, <service_id> will be used)')
         .alias('d', 'description')
         .describe('d', 'description of the service')
         .string('d')
@@ -68,8 +71,8 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-const config = (({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}) =>
-    ({name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}))(args);
+const config = (({name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}) =>
+    ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password}))(args);
 
 pm2ws.install(config).then(_ => {
     console.log('PM2 service installed and started.');

@@ -16,7 +16,7 @@ const path = require('path'),
 module.exports = co.wrap(function*(config) {
 
 
-    const {name, id, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password} = config;
+    const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password} = config;
     console.log(`Install called with config`, config);
 
     //when id is not specified, use name instead
@@ -61,6 +61,7 @@ module.exports = co.wrap(function*(config) {
 
     let service = new Service({
         id: service_id,
+        exeName,
         name: name || 'PM2',
         description,
         script: path.join(__dirname, 'service.js'),

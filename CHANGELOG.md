@@ -1,3 +1,7 @@
+## 1.1.17
+- updated: node-windows
+- added: parameter to specify executable name separately from service_id
+
 ## 1.1.16
 - fixed: incorrect logFolder when SERVICEJS_LOGPATH is not specified
 - added: append service name suffix to logfile
