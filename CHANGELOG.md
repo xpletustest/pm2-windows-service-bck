@@ -1,3 +1,6 @@
+## 1.1.18
+- updated: shelljs (for Node 14.x compatibility)
+
 ## 1.1.17
 - updated: node-windows
 - added: parameter to specify executable name separately from service_id
