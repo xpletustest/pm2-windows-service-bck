@@ -1,3 +1,6 @@
+## 1.1.19
+- updated: node-windows
+
 ## 1.1.18
 - updated: shelljs (for Node 14.x compatibility)
 
