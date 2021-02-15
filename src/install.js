@@ -134,12 +134,16 @@ function* install_and_start_service(service, folder) {
 
     // Now yield on install/alreadyinstalled/start events
     let e;
+    let starting = false;
     while (e = yield event(service)) {
         switch (e.type) {
             case 'alreadyinstalled':
             case 'install':
-                console.log("Starting service...");
-                service.start();
+                if (!starting) { // prevent starting twice
+                    console.log("Starting service...");
+                    starting = true;
+                    service.start();
+                }
                 break;
             case 'start':
                 console.log("Service started.");

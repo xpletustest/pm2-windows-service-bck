@@ -1,3 +1,9 @@
+## 1.1.20
+- updated: node-windows
+- added: some logging to install / uninstall
+- fixed: attempted to start service twice after installed/alreadyinstalled events
+- fixed: attempted to uninstall service twice from after stop/alreadystopped events
+
 ## 1.1.19
 - updated: node-windows
 

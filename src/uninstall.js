@@ -72,13 +72,19 @@ function* stop_and_uninstall_service(service, service_id, folder) {
 
     // Now yield on install/alreadyinstalled/start events
     let e;
+    let uninstalling = false;
     while (e = yield event(service)) {
         switch (e.type) {
             case 'alreadystopped':
             case 'stop':
-                console.log("Service stopped.");
-                console.log(`Uninstalling service from folder: ${folder}`);
-                service.uninstall(folder);
+                if (!uninstalling) { // preven uninstalling twice
+                    console.log("Service stopped.");
+                    console.log(`Uninstalling service from folder: ${folder}`);
+                    uninstalling = true;
+                    service.uninstall(folder, 100);
+                }
+                break;
+            case 'uninstall':
                 return;
         }
     }
@@ -86,6 +92,7 @@ function* stop_and_uninstall_service(service, service_id, folder) {
 
 // Checks if the service was fully uninstalled, if not invokes 'sc stop' to give it a little nudge
 function* try_confirm_kill(service_id) {
+    console.log(`try_confirm_kill`);
     let removed = false;
     try {
         yield* verify_service_exists(service_id);
@@ -110,6 +117,8 @@ function* try_confirm_kill(service_id) {
 }
 
 function* poll_for_service_removal(service_id) {
+
+    console.log(`poll_for_service_removal`);
     let removed = false;
 
     // Windows sometimes takes a while to let go of services, so poll for a minute...
@@ -131,6 +140,7 @@ function* poll_for_service_removal(service_id) {
 }
 
 function* remove_sid_file(id_from_sid_file, sid_file) {
+    console.log(`remove_sid_file`);
     if (id_from_sid_file) {
         yield del(sid_file, { force: true });
     }
