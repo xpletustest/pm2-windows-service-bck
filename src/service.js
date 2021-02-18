@@ -117,7 +117,8 @@ function handle_error(err) {
 logEx("setting up event handlers");
 process.on("message", function (msg, _sendHandle) {
     logEx(`received message: "${msg}"`);
-    if (msg == "shutdown") {
+
+    if (msg == "shutdown") { // NOTE: do NOT use === here, it does not work!
         logEx(`shutdown message received, killing pm2 daemon`);
         // this will exit this process
         pm2.kill(function (err, apps) {
