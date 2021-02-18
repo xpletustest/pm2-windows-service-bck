@@ -4,7 +4,8 @@ const fs = require('fs'),
     shell = require('shelljs'),
     promisify = require('util').promisify || require('promisify-node'),
     del = require('del'),
-    is_admin = require('is-admin');
+    is_admin = require('is-admin'),
+    { warn } = require("./logging");
 
 exports.check_platform = function() {
     if(!/^win/.test(process.platform)) {
@@ -16,10 +17,10 @@ exports.admin_warning = function() {
     return promisify(is_admin)().
         then(isAdmin => {
             if(!isAdmin) {
-                console.warn('*** WARNING: Run this as administrator ***');
+                warn('*** WARNING: Run this as administrator ***');
             }
         }, _ => {
-            console.warn('*** WARNING: Run this as administrator ***');
+            warn('*** WARNING: Run this as administrator ***');
             // Don't re-throw, we just assume they aren't admin if it errored
         });
 };

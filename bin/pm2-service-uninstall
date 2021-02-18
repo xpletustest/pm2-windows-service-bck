@@ -2,6 +2,7 @@
 
 'use strict';
 
+const { log, error } = require("../src/logging");
 const args = require('yargs')
         .usage('Usage: $0 [-i <service_id>] [-e <exe_name>]')
         .alias('i', 'id')
@@ -14,8 +15,8 @@ const args = require('yargs')
 const pm2ws = require('../src/index');
 
 pm2ws.uninstall(args.id, args.exeName).then(_ => {
-    console.log('PM2 service uninstalled.');
+    log('PM2 service uninstalled.');
 }, err => {
-    console.error('Deinstallation failed:', err);
+    error('Deinstallation failed:', err);
     process.exit((err && err.code) || 1);
 });

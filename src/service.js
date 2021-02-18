@@ -5,8 +5,8 @@ const path = require('path'),
     // TODO: Integration test ';' delimited values!!!
     // TODO: [deprecated] Remove support for PM2_SERVICE_SCRIPT and PM2_SERVICE_CONFIG in future
     start_script = process.env.PM2_SERVICE_SCRIPTS || process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT,
-    json_regex = /\.json$/;
-
+    json_regex = /\.json$/ ,
+    log = require("./logging");
 
 const fs = require('fs');
 const PM2_HOME = process.env.PM2_HOME;
@@ -14,27 +14,16 @@ const logFileName = process.env.SERVICE_SUFFIX ? "pm2-windows-service-service_js
 const logFolder = process.env.SERVICEJS_LOGPATH ? process.env.SERVICEJS_LOGPATH : path.join(PM2_HOME, "logs");
 const logFile = path.join(logFolder, logFileName);
 
-function dateString(d) {
-    const yyyy = d.getFullYear(),
-        mm = ('0' + (d.getMonth() + 1)).slice(-2),
-        dd = ('0' + d.getDate()).slice(-2),
-        hh = ('0' + d.getHours()).slice(-2),
-        nn = ('0' + d.getMinutes()).slice(-2),
-        ss = ('0' + d.getSeconds()).slice(-2);
-    return `${yyyy}-${mm}-${dd}T${hh}:${nn}:${ss}`;
-}
-
-function log(msg) {
-    const prefix = "service:";
-    const line =  `${dateString(new Date())}: ${prefix} ${msg}`;
-    console.log(line);
+function logEx(msg) {
+    const line = `service: ${msg}`;
+    log(line);
     fs.appendFileSync(logFile, line+'\n');
 }
 
 log(`START pid=${process.pid}`);
 
 if (!process.env.PM2_SERVICE_SCRIPTS && (process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT)) {
-    log('WARNING: [DEPRECATED] "PM2_SERVICE_CONFIG" and "PM2_SERVICE_SCRIPT" have been deprecated in favour of ' +
+    logEx('WARNING: [DEPRECATED] "PM2_SERVICE_CONFIG" and "PM2_SERVICE_SCRIPT" have been deprecated in favour of ' +
         '"PM2_SERVICE_SCRIPTS".');
 }
 
@@ -50,7 +39,7 @@ if (global_pm2_dir) {
     try {
         pm2 = require(global_pm2_dir);
     } catch (err) {
-        log(`require of ${global_pm2_dir} with error: ${err}`);
+        logEx(`require of ${global_pm2_dir} with error: ${err}`);
         process.exit(1);
     }
 }
@@ -60,18 +49,18 @@ if (!pm2) {
 }
 
 // NOTE: 'true' means the PM2 daemon exists in this process, so it gets kept alive with us as a Windows service
-log(`connecting to pm2`);
+logEx(`connecting to pm2`);
 pm2.connect(true, function (err) {
     handle_error(err);
 
     if (!start_script) {
-        log(`no start scripts, resurrecting pm2`);
+        logEx(`no start scripts, resurrecting pm2`);
         // No start script so just try and ressurect
         pm2.resurrect(function (err2) {
             // Don't crash if we failed to resurrect, we might save on shutdown anyway
         });
     } else {
-        log(`executing start scripts: ${start_script}`);
+        logEx(`executing start scripts: ${start_script}`);
         start_script.split(';').forEach(process_start_script);
     }
 });
@@ -114,7 +103,7 @@ function process_start_script(start_script) {
 
 function handle_error(err) {
     if (err) {
-        log(`ERROR: ${err}`);
+        logEx(`ERROR: ${err}`);
         if (err instanceof Error) {
             throw err;
         }
@@ -125,19 +114,19 @@ function handle_error(err) {
 }
 
 log("setting up event handlers");
-process.on("message", function (msg, sendHandle) {
-    log(`received message: ${msg}`);
-    if (msg == "shutdown") {
+process.on("message", function (msg, _sendHandle) {
+    logEx(`received message: ${msg}`);
+    if (msg !== "shutdown") {
         log(`shutdown message received, killing pm2 daemon`);
         // this will exit this process
         pm2.kill(function (err, apps) {
-            log(`pm2.kill failed with error: ${err} and apps: ${apps}`);
+            logEx(`pm2.kill failed with error: ${err} and apps: ${apps}`);
             // pm2.kill  exits this process, so we never get to here...
-            log(`exit with code=999`);
+            logEx(`exit with code=999`);
             process.exit(999);
         });
     }
 });
 process.on("exit", function (code) {
-    log(`EXIT pid=${process.pid} with code=${code}`);
+    logEx(`EXIT pid=${process.pid} with code=${code}`);
 });

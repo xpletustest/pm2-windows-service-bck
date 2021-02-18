@@ -11,13 +11,13 @@ const path = require('path'),
     inquirer = require('inquirer'),
     common = require('./common'),
     { parseOnFailureString } = require("../src/validation"),
-    setup = require('./setup');
+    setup = require('./setup'),
+    {log, error} = require('./logging');
 
 module.exports = co.wrap(function*(config) {
 
-
     const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password} = config;
-    console.log(`Install called with config`, config);
+    log(`Install called with config`, config);
 
     //when id is not specified, use name instead
     const service_id = id ? id : name;
@@ -55,7 +55,7 @@ module.exports = co.wrap(function*(config) {
         yield setup();
     }
 
-    console.log(`Installing PM2 service with name="${name}"` + (service_id ? ` and id="${service_id}"` : ``));
+    log(`Installing PM2 service with name="${name}"` + (service_id ? ` and id="${service_id}"` : ``));
 
     const logFolder = logpath ? logpath : path.join(PM2_HOME, "logs");
 
@@ -115,7 +115,7 @@ module.exports = co.wrap(function*(config) {
 function* save_sid_file(service_id, sid_file) {
     if (service_id) {
         // Save id to %PM2_HOME%/.sid, if supplied
-        console.log(`Service id: ${service_id} stored in: ${sid_file}.`);
+        log(`Service id: ${service_id} stored in: ${sid_file}.`);
         yield fsx.outputFile(sid_file, service_id);
     }
 }
@@ -140,19 +140,19 @@ function* install_and_start_service(service, folder) {
             case 'alreadyinstalled':
             case 'install':
                 if (!starting) { // prevent starting twice
-                    console.log("Starting service...");
+                    log("Starting service...");
                     starting = true;
                     service.start();
                 }
                 break;
             case 'start':
-                console.log("Service started.");
+                log("Service started.");
                 return;
             case 'error':
-                console.error('node-windows reports error ', e.args);
+                error('node-windows reports error ', e.args);
                 return;
             case 'invalidinstallation':
-                console.error('node-windows reports invalid installation ', e.args);
+                error('node-windows reports invalid installation ', e.args);
                 return;
         }
     }

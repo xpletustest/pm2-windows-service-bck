@@ -1,3 +1,7 @@
+## 1.1.21
+- changed: added unit logging.js
+- changed: all logging functions from logging.js adding timestamps
+
 ## 1.1.20
 - updated: node-windows
 - added: some logging to install / uninstall

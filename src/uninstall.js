@@ -10,7 +10,8 @@ const path = require('path'),
     elevate = promisify(node_win.elevate),
     Service = node_win.Service,
     del = require('del'),
-    common = require('./common');
+    common = require('./common'),
+    {log} = require('./logging');
 
 const MAX_KILL_CHECKS = 30;
 const KILL_CHECK_DELAY = 2000;
@@ -37,7 +38,7 @@ module.exports = co.wrap(function*(id, exeName) {
     // If we don't have a id by now, then default to 'PM2'
     id = id || 'PM2';
 
-    console.log(`Uninstalling PM2 service with id = ${id}`);
+    log(`Uninstalling PM2 service with id = ${id}`);
 
     let service = new Service({
             id,
@@ -67,7 +68,7 @@ function* verify_service_exists(service_id) {
 
 function* stop_and_uninstall_service(service, service_id, folder) {
     // Make sure we kick off the stop event on next tick BEFORE we yield
-    console.log("Stopping service...");
+    log("Stopping service...");
     setImmediate(_ => service.stop());
 
     // Now yield on install/alreadyinstalled/start events
@@ -78,8 +79,8 @@ function* stop_and_uninstall_service(service, service_id, folder) {
             case 'alreadystopped':
             case 'stop':
                 if (!uninstalling) { // preven uninstalling twice
-                    console.log("Service stopped.");
-                    console.log(`Uninstalling service from folder: ${folder}`);
+                    log("Service stopped.");
+                    log(`Uninstalling service from folder: ${folder}`);
                     uninstalling = true;
                     service.uninstall(folder, 100);
                 }
@@ -92,7 +93,7 @@ function* stop_and_uninstall_service(service, service_id, folder) {
 
 // Checks if the service was fully uninstalled, if not invokes 'sc stop' to give it a little nudge
 function* try_confirm_kill(service_id) {
-    console.log(`try_confirm_kill`);
+    log(`try_confirm_kill`);
     let removed = false;
     try {
         yield* verify_service_exists(service_id);
@@ -101,7 +102,7 @@ function* try_confirm_kill(service_id) {
     }
 
     if(!removed) {
-        console.log("Service not removed (yet), trying to stop it and check for removal...");
+        log("Service not removed (yet), trying to stop it and check for removal...");
         // Service hasn't been removed, try stopping it to see if that gets rid of it
         yield elevate('sc stop ' + service_id);
 
@@ -118,14 +119,14 @@ function* try_confirm_kill(service_id) {
 
 function* poll_for_service_removal(service_id) {
 
-    console.log(`poll_for_service_removal`);
+    log(`poll_for_service_removal`);
     let removed = false;
 
     // Windows sometimes takes a while to let go of services, so poll for a minute...
     // TODO: Surely there's a better approach...?
     let tries = 0;
     while(!removed && (tries++ < MAX_KILL_CHECKS)) {
-        console.log(`Checking for service removal (attempt ${tries})`);
+        log(`Checking for service removal (attempt ${tries})`);
         // Re-check to see if it's done now...
         try {
             yield* verify_service_exists(service_id);
@@ -140,7 +141,7 @@ function* poll_for_service_removal(service_id) {
 }
 
 function* remove_sid_file(id_from_sid_file, sid_file) {
-    console.log(`remove_sid_file`);
+    log(`remove_sid_file`);
     if (id_from_sid_file) {
         yield del(sid_file, { force: true });
     }

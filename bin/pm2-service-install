@@ -2,9 +2,9 @@
 
 'use strict';
 
-const {
-    checkValidOnFailure,
-    checkValidResetFailure} = require("../src/validation");
+const
+  { checkValidOnFailure, checkValidResetFailure} = require("../src/validation"),
+  { log, error } = require("../src/logging");
 
 const args = require('yargs')
         .usage('Usage: $0 -n <service_name> [-i <service_id>] [-e <exe_name>] \n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [-w <workingdir>] [-a <account>]\n    [-p <password>] [--unattended]')
@@ -75,8 +75,8 @@ const config = (({name, id, exeName, description, logpath, unattended, onfailure
     ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password}))(args);
 
 pm2ws.install(config).then(_ => {
-    console.log('PM2 service installed and started.');
+    log('PM2 service installed and started.');
 }, err => {
-    console.error('Installation failed:', err);
+    error('Installation failed:', err);
     process.exit((err && err.code) || 1);
 });
