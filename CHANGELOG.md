@@ -1,4 +1,7 @@
 ## 1.2.25
+- removed: unnecessary long wait after service uninstall 
+
+## 1.2.25
 - fixed: logging of install config
 
 ## 1.1.24

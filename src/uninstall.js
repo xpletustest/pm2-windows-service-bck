@@ -78,11 +78,11 @@ function* stop_and_uninstall_service(service, service_id, folder) {
         switch (e.type) {
             case 'alreadystopped':
             case 'stop':
-                if (!uninstalling) { // preven uninstalling twice
+                if (!uninstalling) { // prevent uninstalling twice
                     log("Service stopped.");
                     log(`Uninstalling service from folder: ${folder}`);
                     uninstalling = true;
-                    service.uninstall(folder, 100);
+                    service.uninstall(folder, 1);
                 }
                 break;
             case 'uninstall':
