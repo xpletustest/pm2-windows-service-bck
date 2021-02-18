@@ -42,6 +42,9 @@ const args = require('yargs')
         .alias('p', 'password')
         .describe('p', 'password for account to use for service (requires -a)')
         .string('p')
+        .alias('spf', 'stopparentfirst')
+        .describe('stf', 'pass stopparentfirst flag to node-windows')
+        .boolean('spf')
         .epilog('Syntax:\n'+
         '  <onfailures> syntax: "<action>;<delay>,<action>;<delay>"\n'+
         '    (a list of <action>;<delay> pairs, each pair separated by comma\'s)\n'+
@@ -71,8 +74,8 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-const config = (({name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password}) =>
-    ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password}))(args);
+const config = (({name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst}) =>
+    ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst}))(args);
 
 pm2ws.install(config).then(_ => {
     log('PM2 service installed and started.');

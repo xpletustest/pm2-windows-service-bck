@@ -1,3 +1,6 @@
+## 1.1.23
+- added: option to pass stopparentfirst flag in when installing
+
 ## 1.1.22
 - fix: bugs in service.js
 

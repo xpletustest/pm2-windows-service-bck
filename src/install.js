@@ -16,7 +16,7 @@ const path = require('path'),
 
 module.exports = co.wrap(function*(config) {
 
-    const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password} = config;
+    const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst} = config;
     log(`Install called with config`, config);
 
     //when id is not specified, use name instead
@@ -65,7 +65,7 @@ module.exports = co.wrap(function*(config) {
         name: name || 'PM2',
         description,
         script: path.join(__dirname, 'service.js'),
-        stopparentfirst: true,
+        stopparentfirst,
         logging: {
             mode: 'roll-by-time',
             pattern: 'yyyyMMdd'
