@@ -6,7 +6,7 @@ const path = require('path'),
     // TODO: [deprecated] Remove support for PM2_SERVICE_SCRIPT and PM2_SERVICE_CONFIG in future
     start_script = process.env.PM2_SERVICE_SCRIPTS || process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT,
     json_regex = /\.json$/ ,
-    log = require("./logging");
+    { log } = require("./logging");
 
 const fs = require('fs');
 const PM2_HOME = process.env.PM2_HOME;
@@ -20,7 +20,7 @@ function logEx(msg) {
     fs.appendFileSync(logFile, line+'\n');
 }
 
-log(`START pid=${process.pid}`);
+logEx(`START pid=${process.pid}`);
 
 if (!process.env.PM2_SERVICE_SCRIPTS && (process.env.PM2_SERVICE_CONFIG || process.env.PM2_SERVICE_SCRIPT)) {
     logEx('WARNING: [DEPRECATED] "PM2_SERVICE_CONFIG" and "PM2_SERVICE_SCRIPT" have been deprecated in favour of ' +
@@ -113,11 +113,11 @@ function handle_error(err) {
     }
 }
 
-log("setting up event handlers");
+logEx("setting up event handlers");
 process.on("message", function (msg, _sendHandle) {
     logEx(`received message: ${msg}`);
     if (msg !== "shutdown") {
-        log(`shutdown message received, killing pm2 daemon`);
+        logEx(`shutdown message received, killing pm2 daemon`);
         // this will exit this process
         pm2.kill(function (err, apps) {
             logEx(`pm2.kill failed with error: ${err} and apps: ${apps}`);
