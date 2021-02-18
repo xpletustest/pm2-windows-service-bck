@@ -1,3 +1,6 @@
+## 1.2.25
+- fixed: logging of install config
+
 ## 1.1.24
 - fixed: some more logging
 - fixed: description of stopparentfirst flag
