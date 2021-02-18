@@ -1,3 +1,6 @@
+## 1.1.22
+- fix: bugs in service.js
+
 ## 1.1.21
 - changed: added unit logging.js
 - changed: all logging functions from logging.js adding timestamps
