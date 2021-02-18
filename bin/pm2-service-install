@@ -43,7 +43,7 @@ const args = require('yargs')
         .describe('p', 'password for account to use for service (requires -a)')
         .string('p')
         .alias('spf', 'stopparentfirst')
-        .describe('stf', 'pass stopparentfirst flag to node-windows')
+        .describe('spf', 'pass stopparentfirst flag to node-windows')
         .boolean('spf')
         .epilog('Syntax:\n'+
         '  <onfailures> syntax: "<action>;<delay>,<action>;<delay>"\n'+

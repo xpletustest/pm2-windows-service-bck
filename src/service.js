@@ -17,7 +17,8 @@ const logFile = path.join(logFolder, logFileName);
 function logEx(msg) {
     const line = `service: ${msg}`;
     log(line);
-    fs.appendFileSync(logFile, line+'\n');
+    const timestamp = new Date().toLocaleString();
+    fs.appendFileSync(logFile, `${timestamp} ${line}\n`);
 }
 
 logEx(`START pid=${process.pid}`);
@@ -115,8 +116,8 @@ function handle_error(err) {
 
 logEx("setting up event handlers");
 process.on("message", function (msg, _sendHandle) {
-    logEx(`received message: ${msg}`);
-    if (msg !== "shutdown") {
+    logEx(`received message: "${msg}"`);
+    if (msg == "shutdown") {
         logEx(`shutdown message received, killing pm2 daemon`);
         // this will exit this process
         pm2.kill(function (err, apps) {

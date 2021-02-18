@@ -1,3 +1,9 @@
+## 1.1.24
+- fixed: some more logging
+- fixed: description of stopparentfirst flag
+- fixed: logging to file with timestamps
+- maybe fixed?: shutdown message detection
+
 ## 1.1.23
 - added: option to pass stopparentfirst flag in when installing
 
