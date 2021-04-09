@@ -1,3 +1,8 @@
+## 1.2.26
+- updated: node-windows
+- added: some more logging to stop_and_uninstall_service
+
+
 ## 1.2.25
 - removed: unnecessary long wait after service uninstall 
 

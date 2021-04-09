@@ -77,6 +77,8 @@ function* stop_and_uninstall_service(service, service_id, folder) {
     while (e = yield event(service)) {
         switch (e.type) {
             case 'alreadystopped':
+                log("Service already stopped.");
+                //fall through here..
             case 'stop':
                 if (!uninstalling) { // prevent uninstalling twice
                     log("Service stopped.");
@@ -86,6 +88,7 @@ function* stop_and_uninstall_service(service, service_id, folder) {
                 }
                 break;
             case 'uninstall':
+                log('Service uninstalled');
                 return;
         }
     }
