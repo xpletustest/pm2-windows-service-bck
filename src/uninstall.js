@@ -11,7 +11,7 @@ const path = require('path'),
     Service = node_win.Service,
     del = require('del'),
     common = require('./common'),
-    {log} = require('./logging');
+    {log, error} = require('./logging');
 
 const MAX_KILL_CHECKS = 30;
 const KILL_CHECK_DELAY = 2000;
@@ -54,11 +54,16 @@ module.exports = co.wrap(function*(id, exeName) {
 
     yield* remove_sid_file(id_from_sid_file, sid_file);
 
-    yield* try_confirm_kill(service_id);
-
-    // Try to clean up the daemon files
-    // (node-windows already does this, but just to be sure)
-    yield common.remove_previous_daemon(service, PM2_HOME);
+    try {
+        //this fails sometimes (for reasons unknown):
+        yield* try_confirm_kill(service_id);
+    }
+    catch (err) {
+        // Try to clean up the daemon files
+        // (node-windows already does this, but just to be sure)
+        yield common.remove_previous_daemon(service, PM2_HOME);
+        throw  err;
+    }
 });
 
 function* verify_service_exists(service_id) {
@@ -114,8 +119,10 @@ function* try_confirm_kill(service_id) {
         if(!removed) {
             // Throw if it still isn't fully gone, it's probably marked for deletion, but can't be sure
             // TODO: Determine if it's stopped and/or marked for deletion...
-            throw new Error('WARNING: Unable to fully remove service (' + service_id + '), please confirm it is ' +
-                'scheduled for deletion.');
+            const errorMsg = 'WARNING: Unable to fully remove service (' + service_id + '), please confirm it is ' +
+                'scheduled for deletion.';
+            error(errorMsg);
+            throw new Error(errorMsg);
         }
     }
 }

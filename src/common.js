@@ -26,7 +26,8 @@ exports.admin_warning = function() {
 };
 
 exports.remove_previous_daemon = function(service, folder) {
-    return del(path.resolve(folder, 'daemon', service.id + '.*'), { force: true });
+    return del(path.resolve(folder, 'daemon', service.id + '.*'), { force: true })
+        .catch(e => warn(`remove_previous_daemon failed: ${e}`));
 }
 
 exports.guess_pm2_global_dir = function() {

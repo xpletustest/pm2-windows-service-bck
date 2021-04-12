@@ -1,3 +1,8 @@
+## 1.2.28
+- changed: call remove_previous_daemon even if try_confirm_kill failed
+- changed: remove_previous_daemon no longer fails (only warns)
+- added: failure logging for try_confirm_kill 
+
 ## 1.2.27
 - updated: node-windows
 - added: some more logging to stop_and_uninstall_service
