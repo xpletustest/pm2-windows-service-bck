@@ -7,7 +7,7 @@ const
   { log, error } = require("../src/logging");
 
 const args = require('yargs')
-        .usage('Usage: $0 -n <service_name> [-i <service_id>] [-e <exe_name>] \n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [-w <workingdir>] [-a <account>]\n    [-p <password>] [--unattended]')
+        .usage('Usage: $0 -n <service_name> [-i <service_id>] [-e <exe_name>] \n    [-d <service_description] [-l <log_path> ] [-r <duration>]\n    [-f <onfailures>] [-w <workingdir>] [-a <account>]\n    [-p <password>] [--unattended] [-pp <pathprefix>]')
         .alias('i', 'id')
         .string('i')
         .describe('i', 'id of the service to install\n    (if not specified, <service_name> will be used)')
@@ -17,7 +17,7 @@ const args = require('yargs')
         .demandOption('n')
         .alias('e', 'exeName')
         .string('e')
-        .describe('e', 'name of executable that will be created (without .exe)\n    (if not specified, <service_id> will be used)')
+        .describe('e', 'name of executable that will be created \n(without .exe)\n    (if not specified, <service_id> will be used)')
         .alias('d', 'description')
         .describe('d', 'description of the service')
         .string('d')
@@ -40,8 +40,11 @@ const args = require('yargs')
         .describe('a', 'account to use for service')
         .string('a')
         .alias('p', 'password')
-        .describe('p', 'password for account to use for service (requires -a)')
+        .describe('p', 'password for account to use for service \n(requires -a)')
         .string('p')
+        .alias('pp', 'pathprefix')
+        .describe('pp', 'value to use as a prefix for the PATH environment variable (eg: "PATH=prefix;%PATH%")')
+        .string('pp')        
         .alias('spf', 'stopparentfirst')
         .describe('spf', 'pass stopparentfirst flag to node-windows')
         .boolean('spf')
@@ -74,12 +77,12 @@ const args = require('yargs')
 
 const pm2ws = require('../src/index');
 
-const config = (({name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst}) =>
-    ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst}))(args);
+const config = (({name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, pathprefix, stopparentfirst}) =>
+    ({name, id, description, exeName, logpath, unattended, onfailure, resetfailure, workingdir, account, password, pathprefix, stopparentfirst}))(args);
 
 pm2ws.install(config).then(_ => {
     log('PM2 service installed and started.');
 }, err => {
-    error('Installation failed:', err);
+    error('Installation failed:'+ err);
     process.exit((err && err.code) || 1);
 });

@@ -16,13 +16,13 @@ const path = require('path'),
 
 module.exports = co.wrap(function*(config) {
 
-    const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, stopparentfirst} = config;
-    log(`Install called with config: ${JSON.stringify(config)}`);
+    const {name, id, exeName, description, logpath, unattended, onfailure, resetfailure, workingdir, account, password, pathprefix, stopparentfirst} = config;
+    log(`Install called with config: ${JSON.stringify(config)}`);   
 
     //when id is not specified, use name instead
     const service_id = id ? id : name;
     common.check_platform();
-
+        
     yield common.admin_warning();
 
     const PM2_HOME = process.env.PM2_HOME;
@@ -72,11 +72,11 @@ module.exports = co.wrap(function*(config) {
         },
         logpath: logFolder,
         env: [{
-                name: "PM2_HOME",
-                value: PM2_HOME // service needs PM2_HOME environment var
+                name: "PM2_HOME", // service needs PM2_HOME environment var
+                value: PM2_HOME 
             },{
-                name: "PM2_SERVICE_PM2_DIR",
-                value: PM2_SERVICE_PM2_DIR // service needs PM2_SERVICE_PM2_DIR environment var
+                name: "PM2_SERVICE_PM2_DIR", // service needs PM2_SERVICE_PM2_DIR environment var
+                value: PM2_SERVICE_PM2_DIR 
             },
             {
                 name: "SERVICEJS_LOGPATH", // folder where service.js stores logging
@@ -85,6 +85,10 @@ module.exports = co.wrap(function*(config) {
             {
                 name: "SERVICE_SUFFIX", // suffix for log filename used by service.js
                 value: process.env.SERVICE_SUFFIX
+            },
+            {
+                name: "PATH", // service needs correct PATH environment to find Node.js
+                value: (pathprefix ? pathprefix+';' : '') + '%PATH%'
             }
         ],
         onFailure: onfailure ? parseOnFailureString(onfailure) : null,

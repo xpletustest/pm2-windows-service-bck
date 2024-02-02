@@ -1,3 +1,9 @@
+## 1.2.29
+- added: support for pathprefix parameter 
+  (=value to use as a prefix for the PATH environment variable)
+- fixed: broken error logging in pm2-service-install & pm2-service-uninstall  
+- improved: command-line formatting
+
 ## 1.2.28
 - changed: call remove_previous_daemon even if try_confirm_kill failed
 - changed: remove_previous_daemon no longer fails (only warns)
