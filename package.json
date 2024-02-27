@@ -1,6 +1,6 @@
 {
     "name": "@innomizetech/pm2-windows-service",
-    "version": "1.1.29",
+    "version": "1.1.30",
     "description": "Install PM2 as a service on windows",
     "main": "src/index.js",
     "bin": {
@@ -32,7 +32,7 @@
         "fs-extra": "^4.0.3",
         "inquirer": "^7.1.0",
         "is-admin": "^1.0.2",
-        "node-windows": "git+https://github.com/mendrix/node-windows.git#v1.0.13",
+        "node-windows": "git+https://github.com/mendrix/node-windows.git#v1.0.14",
         "promisify-node": "^0.3.0",
         "shelljs": "^0.8.4",
         "yargs": "^15.3.1"

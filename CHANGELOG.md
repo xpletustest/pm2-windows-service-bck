@@ -1,3 +1,6 @@
+## 1.2.30
+- updated: node-windows (fixes unsecure password storage in xml config file)
+
 ## 1.2.29
 - added: support for pathprefix parameter 
   (=value to use as a prefix for the PATH environment variable)
